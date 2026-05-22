@@ -190,7 +190,8 @@ public class TurretWeapon : MonoBehaviour
         float refreshInterval = (turretInstance != null && turretInstance.data != null) ? turretInstance.data.targetRefreshInterval : 0.1f;
         if (Time.time >= nextTargetRefreshTime || !IsValidTarget(currentTarget, stats.range))
         {
-            currentTarget = FindNearestTarget(stats.range);
+            TurretAttackType atkType = (turretInstance != null && turretInstance.data != null) ? turretInstance.data.attackType : TurretAttackType.SingleTarget;
+            currentTarget = FindNearestTarget(stats.range, atkType);
             nextTargetRefreshTime = Time.time + refreshInterval;
         }
 
@@ -409,11 +410,14 @@ public class TurretWeapon : MonoBehaviour
         flashCoroutine = null;
     }
 
-    private Enemy FindNearestTarget(float range)
+    private Enemy FindNearestTarget(float range, TurretAttackType type)
     {
-        Enemy nearestTarget = null;
         float rangeSqr = range * range;
-        float nearestDistanceSqr = float.MaxValue;
+        
+        float bestUnslowedDistanceSqr = float.MaxValue;
+        float bestSlowedDistanceSqr = float.MaxValue;
+        Enemy bestUnslowedTarget = null;
+        Enemy bestSlowedTarget = null;
 
         IReadOnlyList<Enemy> enemies = Enemy.ActiveEnemies;
         for (int i = 0; i < enemies.Count; i++)
@@ -425,14 +429,45 @@ public class TurretWeapon : MonoBehaviour
             }
 
             float distanceSqr = ((Vector2)enemy.transform.position - (Vector2)transform.position).sqrMagnitude;
-            if (distanceSqr < nearestDistanceSqr && distanceSqr <= rangeSqr)
+            if (distanceSqr > rangeSqr) continue;
+
+            if (type == TurretAttackType.AOESlow)
             {
-                nearestTarget = enemy;
-                nearestDistanceSqr = distanceSqr;
+                if (!enemy.IsSlowed)
+                {
+                    if (distanceSqr < bestUnslowedDistanceSqr)
+                    {
+                        bestUnslowedDistanceSqr = distanceSqr;
+                        bestUnslowedTarget = enemy;
+                    }
+                }
+                else
+                {
+                    if (distanceSqr < bestSlowedDistanceSqr)
+                    {
+                        bestSlowedDistanceSqr = distanceSqr;
+                        bestSlowedTarget = enemy;
+                    }
+                }
+            }
+            else
+            {
+                if (distanceSqr < bestUnslowedDistanceSqr)
+                {
+                    bestUnslowedDistanceSqr = distanceSqr;
+                    bestUnslowedTarget = enemy;
+                }
             }
         }
 
-        return nearestTarget;
+        if (type == TurretAttackType.AOESlow)
+        {
+            return bestUnslowedTarget != null ? bestUnslowedTarget : bestSlowedTarget;
+        }
+        else
+        {
+            return bestUnslowedTarget;
+        }
     }
 
     private bool IsValidTarget(Enemy enemy, float range)
@@ -494,7 +529,12 @@ public class AuraVisualController : MonoBehaviour
         currentRadius = radius;
         if (currentAnimation != null) StopCoroutine(currentAnimation);
         
-        Vector3 targetScale = new Vector3(radius * 2f, radius * 2f, 1f);
+        Vector3 lossy = transform.parent != null ? transform.parent.lossyScale : Vector3.one;
+        Vector3 targetScale = new Vector3(
+            lossy.x != 0f ? (radius * 2f) / lossy.x : radius * 2f, 
+            lossy.y != 0f ? (radius * 2f) / lossy.y : radius * 2f, 
+            1f);
+            
         currentAnimation = StartCoroutine(AnimateScale(transform.localScale, targetScale, duration));
     }
 

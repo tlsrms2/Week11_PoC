@@ -4205,6 +4205,14 @@ PrefabInstance:
       value: PlayerTruck
       objectReference: {fileID: 0}
     - target: {fileID: 7974373109868177340, guid: ae57bc32a03745743a3a99bcfc426841, type: 3}
+      propertyPath: maxHealth
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 7974373109868177340, guid: ae57bc32a03745743a3a99bcfc426841, type: 3}
+      propertyPath: currentHealth
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 7974373109868177340, guid: ae57bc32a03745743a3a99bcfc426841, type: 3}
       propertyPath: rearAnchorOffset.x
       value: -0.965
       objectReference: {fileID: 0}

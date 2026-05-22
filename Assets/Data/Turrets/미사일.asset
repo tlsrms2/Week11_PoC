@@ -20,7 +20,7 @@ MonoBehaviour:
   damageGrowthPerLevel: 1.5
   fireRateGrowthPerLevel: 1.15
   rangeGrowthPerLevel: 1
-  splashRadiusGrowthPerLevel: 1.05
+  splashRadiusGrowthPerLevel: 1.1
   weaponPrefab: {fileID: 3793564247735557615, guid: 4f91e6ccf61f18c44833cd9c0bfb5ba4, type: 3}
   icon: {fileID: 21300000, guid: 7aba2f8851b3dd044a43e4de71a5353e, type: 3}
   attackOnlyDuringDefense: 1
@@ -30,7 +30,7 @@ MonoBehaviour:
   explosionSprite: {fileID: 21300000, guid: 7c83a85da90d03f4cac1ef9f483b623f, type: 3}
   explosionColor: {r: 1, g: 0.4901961, b: 0.5019608, a: 1}
   attackType: 1
-  splashRadius: 3
+  splashRadius: 2.5
   slowFactor: 0.5
   slowDuration: 2
   auraActiveDuration: 3

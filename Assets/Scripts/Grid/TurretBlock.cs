@@ -27,6 +27,7 @@ public class TurretBlock : MonoBehaviour
     private bool isOutOfBounds = false;
 
     [HideInInspector] public Color gradeColor = Color.white;
+    [HideInInspector] public string gradeName = "Normal";
     private readonly List<GameObject> levelTextCanvases = new List<GameObject>();
 
     [Header("Drag")]
@@ -99,11 +100,12 @@ public class TurretBlock : MonoBehaviour
         SetLevelTextsActive(!IsPlaced);
     }
 
-    public void Initialize(int nSize, List<TurretInstance> newInstances, Color blockGradeColor)
+    public void Initialize(int nSize, List<TurretInstance> newInstances, Color blockGradeColor, string nameOfGrade = "Normal")
     {
         gridSize = nSize;
         instances = newInstances;
         this.gradeColor = blockGradeColor;
+        this.gradeName = nameOfGrade;
         
         // Clear any old background cells
         foreach (var inst in instances)

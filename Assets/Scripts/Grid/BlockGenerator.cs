@@ -369,12 +369,12 @@ public class BlockGenerator : MonoBehaviour
             instances.Add(inst);
         }
 
-        blockObj.Initialize(actualGridSize, instances, grade.gradeColor);
+        blockObj.Initialize(actualGridSize, instances, grade.gradeColor, grade.gradeName);
 
         return blockObj;
     }
 
-    public TurretBlock GenerateLevel1SingleCellBlock(Vector3 position, Transform parent = null)
+    public TurretBlock GenerateLevel1SingleCellBlock(Vector3 position, Transform parent = null, int level = 1, string gradeName = "Normal")
     {
         if (gradeSettings == null || gradeSettings.grades.Count == 0 || gradeSettings.turretDatabase == null || gradeSettings.turretDatabase.allTurrets.Count == 0)
         {
@@ -397,12 +397,26 @@ public class BlockGenerator : MonoBehaviour
         {
             localPosition = Vector2Int.zero,
             data = gradeSettings.turretDatabase.GetRandomTurret(),
-            level = 1
+            level = level
         };
         instances.Add(inst);
 
-        Color gradeColor = gradeSettings.grades[0].gradeColor;
-        blockObj.Initialize(1, instances, gradeColor);
+        // Find the matching GradeSetting to get the correct color and name
+        Color gradeColor = Color.white;
+        string finalGradeName = gradeName;
+        GradeSetting foundGrade = gradeSettings.grades.Find(g => g.gradeName.ToLower() == gradeName.ToLower());
+        if (foundGrade != null)
+        {
+            gradeColor = foundGrade.gradeColor;
+            finalGradeName = foundGrade.gradeName;
+        }
+        else
+        {
+            gradeColor = gradeSettings.grades[0].gradeColor;
+            finalGradeName = gradeSettings.grades[0].gradeName;
+        }
+
+        blockObj.Initialize(1, instances, gradeColor, finalGradeName);
 
         return blockObj;
     }

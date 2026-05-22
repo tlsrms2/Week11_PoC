@@ -52,6 +52,7 @@ public class Enemy : MonoBehaviour
     public static IReadOnlyList<Enemy> ActiveEnemies => activeEnemies;
     public bool IsAlive => currentHealth > 0f;
     public float CurrentHealth => currentHealth;
+    public bool IsSlowed => slowMultiplier < 1f && slowDurationTimer > 0f;
 
     private void Awake()
     {

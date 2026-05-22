@@ -20,9 +20,9 @@ MonoBehaviour:
   spawnRadiusMax: 18
   useSurgeSpawn: 1
   surgeInterval: 5
-  surgeDirections: 4
-  surgeSpawnPerDirection: 4
-  surgeClusterRadius: 0.3
+  surgeDirections: 5
+  surgeSpawnPerDirection: 11
+  surgeClusterRadius: 0.5
   useBurstSpawn: 0
   burstInterval: 5
   burstCount: 10

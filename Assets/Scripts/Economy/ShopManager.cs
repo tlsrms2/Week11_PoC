@@ -13,7 +13,7 @@ public class ShopManager : MonoBehaviour
 
     public int BlockSellPrice => blockSellPrice;
 
-    // 프로퍼티를 통해 웨이브당 비용이 10씩 자동 증가하도록 처리
+    // 프로퍼티를 통해 웨이브당 비용이 20씩 자동 증가하도록 처리
     public int BlockPurchaseCost
     {
         get
@@ -22,7 +22,7 @@ public class ShopManager : MonoBehaviour
             WaveSpawner spawner = FindFirstObjectByType<WaveSpawner>();
             if (spawner != null)
             {
-                extraCost = Mathf.Max(0, spawner.CurrentWaveLevel - 1) * 10;
+                extraCost = Mathf.Max(0, spawner.CurrentWaveLevel - 1) * 20;
             }
             return blockPurchaseCost + extraCost;
         }

@@ -166,7 +166,7 @@ public class BlockInventory : MonoBehaviour
         return distance <= 1.0f;
     }
 
-    /// <summary>블록을 즉시 교환하고, 1레벨짜리 1x1 포탑 블록을 무작위로 생성하여 인벤토리에 넣는다.</summary>
+    /// <summary>블록을 즉시 교환하고, 등급에 따른 레벨의 1x1 포탑 블록을 무작위로 생성하여 인벤토리에 넣는다.</summary>
     public void ExchangeBlock(TurretBlock block)
     {
         if (block == null) return;
@@ -185,14 +185,26 @@ public class BlockInventory : MonoBehaviour
         // "EXCHANGE" 텍스트 띄우기 (Cyan 색상)
         CreateFloatingText("EXCHANGE", spawnPos, Color.cyan);
 
+        // 등급에 따른 레벨 결정 (Normal: 1, Rare: 2, Unique: 3, Legend: 4)
+        int targetLevel = 1;
+        string originalGradeName = block.gradeName;
+        if (!string.IsNullOrEmpty(originalGradeName))
+        {
+            string lowerGrade = originalGradeName.ToLower();
+            if (lowerGrade.Contains("normal")) targetLevel = 1;
+            else if (lowerGrade.Contains("rare")) targetLevel = 2;
+            else if (lowerGrade.Contains("unique")) targetLevel = 3;
+            else if (lowerGrade.Contains("legend")) targetLevel = 4;
+        }
+
         // 원래 블록은 인벤토리에서 제거하고 즉시 파괴
         RemoveBlock(block);
         Destroy(block.gameObject);
 
-        // 새로운 1레벨짜리 1x1 랜덤 포탑 블록 생성 (위치는 교환 슬롯 좌표)
+        // 새로운 등급/레벨의 1x1 랜덤 포탑 블록 생성 (위치는 교환 슬롯 좌표)
         if (BlockGenerator.Instance != null)
         {
-            TurretBlock newBlock = BlockGenerator.Instance.GenerateLevel1SingleCellBlock(spawnPos, transform);
+            TurretBlock newBlock = BlockGenerator.Instance.GenerateLevel1SingleCellBlock(spawnPos, transform, targetLevel, originalGradeName);
             if (newBlock != null)
             {
                 // 인벤토리에 넣기
