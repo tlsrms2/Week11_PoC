@@ -155,7 +155,6 @@ MonoBehaviour:
   firePoint: {fileID: 3476914204446769903}
   muzzleFlashVisual: {fileID: 6136515921539179947}
   flashDuration: 0.1
-  auraVisual: {fileID: 0}
   drawRangeGizmo: 1
 --- !u!1 &6136515921539179947
 GameObject:
@@ -184,7 +183,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.53188187, y: 0.53188187, z: 0.53188187}
+  m_LocalScale: {x: 0.30622566, y: 0.30622566, z: 0.30622566}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 3476914204446769903}

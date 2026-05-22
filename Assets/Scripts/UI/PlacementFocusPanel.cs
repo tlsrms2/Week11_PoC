@@ -72,6 +72,7 @@ public class PlacementFocusPanel : MonoBehaviour
         else
         {
             overlayImage.gameObject.SetActive(false);
+            overlayImage.raycastTarget = false;
         }
     }
 
@@ -93,6 +94,8 @@ public class PlacementFocusPanel : MonoBehaviour
 
         overlayImage = overlayGo.AddComponent<Image>();
         overlayImage.color = overlayColor;
+        overlayImage.raycastTarget = false; // Add this line so UI overlay doesn't block OnMouseDown
+
 
         // RectTransform을 화면 꽉 차게 설정 (Stretch-Stretch)
         RectTransform rect = overlayImage.rectTransform;
