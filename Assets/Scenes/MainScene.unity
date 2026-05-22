@@ -1414,7 +1414,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopManager
   blockPurchaseCost: 30
-  blockSellPrice: 5
+  blockSellPrice: 10
   turretDatabase: {fileID: 11400000, guid: 97db38fafe1e109449728df55aa560d5, type: 2}
   blockGradeSettings: {fileID: 11400000, guid: 445e69dece5d2fa46b4b6f30f335c65e, type: 2}
   spawnPoint: {fileID: 1062165031}
