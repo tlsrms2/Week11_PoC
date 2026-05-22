@@ -97,6 +97,11 @@ public class TurretDataManagerWindow : EditorWindow
         DrawDetailsPanel();
 
         GUILayout.EndHorizontal();
+
+        if (GUI.changed)
+        {
+            Repaint();
+        }
     }
 
     private void DrawTitleBarAndTabs()
@@ -426,6 +431,15 @@ public class TurretDataManagerWindow : EditorWindow
 
         EditorGUILayout.Space();
 
+        // Apply changes to the serialized object before simulator calculations
+        if (so.ApplyModifiedProperties())
+        {
+            EditorUtility.SetDirty(selectedTurret);
+            SyncAssetName(selectedTurret, selectedTurret.turretName);
+            RefreshTurretList();
+            Repaint();
+        }
+
         // Group 4: Interactive Stats Simulator
         GUILayout.BeginVertical("GroupBox");
         GUIStyle simulatorHeaderStyle = new GUIStyle(EditorStyles.boldLabel);
@@ -471,13 +485,6 @@ public class TurretDataManagerWindow : EditorWindow
 
 
         GUILayout.EndScrollView();
-
-        if (so.ApplyModifiedProperties())
-        {
-            EditorUtility.SetDirty(selectedTurret);
-            SyncAssetName(selectedTurret, selectedTurret.turretName);
-            RefreshTurretList();
-        }
     }
 
     private void DrawCombatPreview(TurretStats stats)
@@ -703,9 +710,34 @@ public class TurretDataManagerWindow : EditorWindow
 
         EditorGUILayout.Space();
 
+        // Group 1.1: Circular Spawn Settings
+        GUILayout.BeginVertical("GroupBox");
+        EditorGUILayout.LabelField("⭕ Circular Spawn Settings", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(so.FindProperty("spawnRadiusMin"));
+        EditorGUILayout.PropertyField(so.FindProperty("spawnRadiusMax"));
+        GUILayout.EndVertical();
+
+        EditorGUILayout.Space();
+
+        // Group 1.2: Surge (Swarm) Settings
+        GUILayout.BeginVertical("GroupBox");
+        EditorGUILayout.LabelField("🐜 Surge (Swarm) Spawn Settings", EditorStyles.boldLabel);
+        SerializedProperty useSurgeProp = so.FindProperty("useSurgeSpawn");
+        EditorGUILayout.PropertyField(useSurgeProp);
+        if (useSurgeProp.boolValue)
+        {
+            EditorGUILayout.PropertyField(so.FindProperty("surgeInterval"));
+            EditorGUILayout.PropertyField(so.FindProperty("surgeDirections"));
+            EditorGUILayout.PropertyField(so.FindProperty("surgeSpawnPerDirection"));
+            EditorGUILayout.PropertyField(so.FindProperty("surgeClusterRadius"));
+        }
+        GUILayout.EndVertical();
+
+        EditorGUILayout.Space();
+
         // Group 1.5: Burst Spawn Settings
         GUILayout.BeginVertical("GroupBox");
-        EditorGUILayout.LabelField("💥 Burst Spawn Settings", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("💥 Legacy Burst Spawn Settings", EditorStyles.boldLabel);
         SerializedProperty useBurstProp = so.FindProperty("useBurstSpawn");
         EditorGUILayout.PropertyField(useBurstProp);
         if (useBurstProp.boolValue)

@@ -16,8 +16,8 @@ MonoBehaviour:
   enemySprite: {fileID: 21300000, guid: 6ea5c1052ae4fed4fae7ba3c8f2c3e8e, type: 3}
   enemyPrefab: {fileID: 3707601892873719913, guid: e4c2e78bd5c8dc449b21ab92809925cd, type: 3}
   maxHealth: 150
-  moveSpeed: 6
+  moveSpeed: 5.5
   contactDamage: 5
   attackInterval: 1
-  currencyReward: 2
-  blockDropChance: 0.07
+  currencyReward: 1
+  blockDropChance: 0

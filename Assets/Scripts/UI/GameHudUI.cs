@@ -17,16 +17,13 @@ public class GameHudUI : MonoBehaviour
 
     [Header("Texts")]
     [SerializeField] private TextMeshProUGUI currencyText;
+    [SerializeField] private TextMeshProUGUI waveText;
 
     [Header("Buttons")]
     [SerializeField] private Button startDefenseButton;
-    [SerializeField] private Button repairTruckButton;
-    [SerializeField] private Button expandTrailerButton;
+    //[SerializeField] 
+    private Button expandTrailerButton;
     [SerializeField] private Button purchaseBlockButton;
-
-    [Header("Repair")]
-    [SerializeField] private float repairAmount = 25f;
-    [SerializeField] private int repairCost = 10;
 
     [Header("Wave Progress UI")]
     [SerializeField] private Vector2 progressBarOffset = new Vector2(0f, -30f);
@@ -191,11 +188,6 @@ public class GameHudUI : MonoBehaviour
             startDefenseButton.onClick.AddListener(StartDefense);
         }
 
-        if (repairTruckButton != null)
-        {
-            repairTruckButton.onClick.RemoveListener(RepairTruck);
-            repairTruckButton.onClick.AddListener(RepairTruck);
-        }
 
         if (expandTrailerButton != null)
         {
@@ -240,7 +232,8 @@ public class GameHudUI : MonoBehaviour
                 }
                 if (waveLevelText != null)
                 {
-                    waveLevelText.text = $"Wave {waveSpawner.CurrentWaveLevel}";
+                    int totalWaves = waveSpawner.WaveScenarios != null ? waveSpawner.WaveScenarios.Count : 0;
+                    waveLevelText.text = $"Wave {waveSpawner.CurrentWaveLevel}/{totalWaves}";
                 }
             }
         }
@@ -248,8 +241,7 @@ public class GameHudUI : MonoBehaviour
         // 버튼 표시/숨김 처리
         if (startDefenseButton != null)
             startDefenseButton.gameObject.SetActive(isMaintenance);
-        if (repairTruckButton != null)
-            repairTruckButton.gameObject.SetActive(isMaintenance);
+
         if (expandTrailerButton != null)
             expandTrailerButton.gameObject.SetActive(isMaintenance);
         if (purchaseBlockButton != null)
@@ -261,19 +253,18 @@ public class GameHudUI : MonoBehaviour
             startDefenseButton.interactable = !GamePhaseManager.IsGameOver && !GamePhaseManager.IsVictory;
         }
 
-        if (repairTruckButton != null)
-        {
-            repairTruckButton.interactable = truckBody != null
-                && currencyWallet != null
-                && currencyWallet.CurrentCurrency >= repairCost
-                && !GamePhaseManager.IsGameOver
-                && !GamePhaseManager.IsVictory;
-        }
 
         if (currencyText != null)
         {
             int amount = currencyWallet != null ? currencyWallet.CurrentCurrency : 0;
             currencyText.text = $"Money: ${amount}";
+        }
+
+        if (waveText != null)
+        {
+            int waveNum = waveSpawner != null ? waveSpawner.CurrentWaveLevel : 1;
+            int totalWaves = waveSpawner != null && waveSpawner.WaveScenarios != null ? waveSpawner.WaveScenarios.Count : 0;
+            waveText.text = $"Wave: {waveNum}/{totalWaves}";
         }
 
         if (expandTrailerButton != null)
@@ -290,6 +281,22 @@ public class GameHudUI : MonoBehaviour
                 && ShopManager.Instance.CanPurchaseBlock 
                 && !GamePhaseManager.IsGameOver
                 && !GamePhaseManager.IsVictory;
+
+            // 버튼 텍스트에 실시간 블록 가격 표시
+            if (ShopManager.Instance != null)
+            {
+                int currentCost = ShopManager.Instance.BlockPurchaseCost;
+                var btnText = purchaseBlockButton.GetComponentInChildren<TextMeshProUGUI>();
+                if (btnText != null)
+                {
+                    btnText.text = $"블록 구매 (${currentCost})";
+                }
+                else
+                {
+                    var legacyText = purchaseBlockButton.GetComponentInChildren<Text>();
+                    if (legacyText != null) legacyText.text = $"블록 구매 (${currentCost})";
+                }
+            }
         }
     }
 
@@ -306,12 +313,6 @@ public class GameHudUI : MonoBehaviour
         }
     }
 
-    private void RepairTruck()
-    {
-        if (truckBody == null) return;
-        if (currencyWallet != null && !currencyWallet.TrySpend(repairCost)) return;
-        truckBody.Repair(repairAmount);
-    }
 
     private void ExpandTrailer()
     {

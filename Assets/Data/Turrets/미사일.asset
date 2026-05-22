@@ -15,8 +15,8 @@ MonoBehaviour:
   turretName: "\uBBF8\uC0AC\uC77C"
   baseStats:
     damage: 10
-    fireRate: 1
-    range: 9
+    fireRate: 1.5
+    range: 11
   damageGrowthPerLevel: 1.5
   fireRateGrowthPerLevel: 1.15
   rangeGrowthPerLevel: 1

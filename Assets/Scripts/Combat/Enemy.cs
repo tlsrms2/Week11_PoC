@@ -56,6 +56,11 @@ public class Enemy : MonoBehaviour
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            var outline = gameObject.AddComponent<SpriteOutlineHelper>();
+            outline.outlineColor = Color.black;
+        }
         currentHealth = enemyData != null ? enemyData.maxHealth : 30f;
         rb = GetComponent<Rigidbody2D>();
         if (rb == null)
@@ -145,6 +150,8 @@ public class Enemy : MonoBehaviour
             return;
         }
 
+        transform.position = new Vector3(transform.position.x, transform.position.y, 0f);
+
         UpdateDynamicTarget();
 
         if (target == null || targetCollider == null)
@@ -154,7 +161,7 @@ public class Enemy : MonoBehaviour
         }
 
         Vector3 closestPoint = targetCollider.ClosestPoint(transform.position);
-        Vector3 direction = closestPoint - transform.position;
+        Vector2 direction = (Vector2)closestPoint - (Vector2)transform.position;
         float distanceSqr = direction.sqrMagnitude;
 
 
@@ -209,7 +216,7 @@ public class Enemy : MonoBehaviour
             }
         }
 
-        Vector2 moveDirection = (Vector2)direction.normalized;
+        Vector2 moveDirection = direction.normalized;
         if (overlapCount > 0)
         {
             // Blend target direction with separation force (e.g., 65% target, 35% avoidance)
@@ -252,8 +259,8 @@ public class Enemy : MonoBehaviour
             Collider2D truckCollider = TruckBody.Instance.BodyCollider;
             if (truckCollider != null)
             {
-                Vector3 closestPt = truckCollider.ClosestPoint(transform.position);
-                float distanceSqr = (closestPt - transform.position).sqrMagnitude;
+                Vector2 closestPt = truckCollider.ClosestPoint(transform.position);
+                float distanceSqr = (closestPt - (Vector2)transform.position).sqrMagnitude;
                 if (distanceSqr < closestDistanceSqr)
                 {
                     closestDistanceSqr = distanceSqr;
@@ -272,8 +279,8 @@ public class Enemy : MonoBehaviour
             Collider2D trailerCollider = trailer.BodyCollider;
             if (trailerCollider != null)
             {
-                Vector3 closestPt = trailerCollider.ClosestPoint(transform.position);
-                float distanceSqr = (closestPt - transform.position).sqrMagnitude;
+                Vector2 closestPt = trailerCollider.ClosestPoint(transform.position);
+                float distanceSqr = (closestPt - (Vector2)transform.position).sqrMagnitude;
                 if (distanceSqr < closestDistanceSqr)
                 {
                     closestDistanceSqr = distanceSqr;
@@ -387,6 +394,11 @@ public class Enemy : MonoBehaviour
         CurrencyWallet wallet = CurrencyWallet.Instance;
         int reward = enemyData != null ? enemyData.currencyReward : 5;
         wallet?.Add(reward);
+
+        if (BlockInventory.Instance != null && BlockInventory.Instance.IsInventoryFull)
+        {
+            return;
+        }
 
         float dropChance = enemyData != null ? enemyData.blockDropChance : 0.2f;
         if (Random.value > dropChance) return;

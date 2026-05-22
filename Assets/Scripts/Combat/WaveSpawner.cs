@@ -41,11 +41,22 @@ public class WaveSpawner : MonoBehaviour
     private int maxAliveEnemies = 8;
     private float defenseDuration = 30f;
 
-    // Burst spawn runtime variables
+    // Burst spawn runtime variables (Legacy)
     private bool useBurstSpawn = false;
     private float burstInterval = 10f;
     private int burstCount = 15;
     private float burstTimer;
+
+    // Surge spawn runtime variables (New Swarm System)
+    private bool useSurgeSpawn = false;
+    private float surgeInterval = 8f;
+    private int surgeDirections = 6;
+    private int surgeSpawnPerDirection = 4;
+    private float surgeClusterRadius = 0.5f;
+    private float surgeTimer;
+
+    private float spawnRadiusMin = 8f;
+    private float spawnRadiusMax = 12f;
 
     public int SpawnedCount => spawnedCount;
     public int AliveCount => CountAliveEnemies();
@@ -88,6 +99,34 @@ public class WaveSpawner : MonoBehaviour
             return;
         }
 
+        // Real-time synchronization of wave balance parameters from WaveDataSO for instant balancing feedback
+        if (waveScenarios != null && currentWaveLevel >= 1 && currentWaveLevel <= waveScenarios.Count)
+        {
+            WaveDataSO currentWaveData = waveScenarios[currentWaveLevel - 1];
+            if (currentWaveData != null)
+            {
+                spawnRadiusMin = currentWaveData.spawnRadiusMin;
+                spawnRadiusMax = currentWaveData.spawnRadiusMax;
+                useSurgeSpawn = currentWaveData.useSurgeSpawn;
+                surgeInterval = currentWaveData.surgeInterval;
+                surgeDirections = currentWaveData.surgeDirections;
+                surgeSpawnPerDirection = currentWaveData.surgeSpawnPerDirection;
+                surgeClusterRadius = currentWaveData.surgeClusterRadius;
+                
+                useBurstSpawn = currentWaveData.useBurstSpawn;
+                burstInterval = currentWaveData.burstInterval;
+                burstCount = currentWaveData.burstCount;
+                
+                spawnInterval = currentWaveData.spawnInterval;
+            }
+        }
+
+        // 맵 스크롤(트랜지션)이 완전히 끝나야 웨이브 타이머 및 스폰 시작
+        if (GameFlowManager.Instance != null && GameFlowManager.Instance.IsTransitioning)
+        {
+            return;
+        }
+
         if (ShouldCompleteWave())
         {
             CompleteWave();
@@ -115,6 +154,16 @@ public class WaveSpawner : MonoBehaviour
             {
                 TriggerBurstSpawn();
                 burstTimer = burstInterval;
+            }
+        }
+
+        if (useSurgeSpawn)
+        {
+            surgeTimer -= Time.deltaTime;
+            if (surgeTimer <= 0f)
+            {
+                TriggerSurgeSpawn();
+                surgeTimer = surgeInterval;
             }
         }
     }
@@ -159,11 +208,24 @@ public class WaveSpawner : MonoBehaviour
         burstInterval = currentWaveData.burstInterval;
         burstCount = currentWaveData.burstCount;
 
-        // Auto adjust maxAliveEnemies for burst spawning to guarantee massive swarms are not truncated
-        if (useBurstSpawn && maxAliveEnemies < burstCount)
+        // Apply surge spawn stats
+        useSurgeSpawn = currentWaveData.useSurgeSpawn;
+        surgeInterval = currentWaveData.surgeInterval;
+        surgeDirections = currentWaveData.surgeDirections;
+        surgeSpawnPerDirection = currentWaveData.surgeSpawnPerDirection;
+        surgeClusterRadius = currentWaveData.surgeClusterRadius;
+        spawnRadiusMin = currentWaveData.spawnRadiusMin;
+        spawnRadiusMax = currentWaveData.spawnRadiusMax;
+
+        // Auto adjust maxAliveEnemies to guarantee massive swarms are not truncated
+        int requiredMax = 0;
+        if (useSurgeSpawn) requiredMax = surgeDirections * surgeSpawnPerDirection * 2;
+        else if (useBurstSpawn) requiredMax = burstCount * 2;
+        
+        if (requiredMax > maxAliveEnemies)
         {
-            maxAliveEnemies = Mathf.Max(maxAliveEnemies, burstCount);
-            Debug.Log($"WaveSpawner: Auto-adjusting maxAliveEnemies to {maxAliveEnemies} to accommodate burst spawning.");
+            maxAliveEnemies = requiredMax;
+            Debug.Log($"WaveSpawner: Auto-adjusting maxAliveEnemies to {maxAliveEnemies} to accommodate massive spawning.");
         }
 
         // Build spawn list (weight based pooling)
@@ -181,6 +243,7 @@ public class WaveSpawner : MonoBehaviour
         currentRemainingTime = defenseDuration;
         spawnTimer = 0f;
         burstTimer = 0f;
+        surgeTimer = 0f;
         waveRunning = true;
 
         Debug.Log($"Starting Wave {currentWaveLevel}: '{currentWaveData.waveName}'. Duration: {defenseDuration}s");
@@ -239,6 +302,61 @@ public class WaveSpawner : MonoBehaviour
         spawnedEnemies.Add(enemy);
         spawnedCount++;
         return enemy;
+    }
+
+    private void TriggerSurgeSpawn()
+    {
+        if (ShouldStopSpawning() || currentWaveSpawnList.Count == 0) return;
+
+        int toSpawn = surgeDirections * surgeSpawnPerDirection;
+        int aliveCount = CountAliveEnemies();
+        if (aliveCount + toSpawn > maxAliveEnemies)
+        {
+            toSpawn = Mathf.Max(0, maxAliveEnemies - aliveCount);
+        }
+        if (toSpawn <= 0) return;
+
+        Vector3 centerPos = TruckBody.Instance != null ? TruckBody.Instance.transform.position : transform.position;
+        float angleStep = 360f / surgeDirections;
+        float randomAngleOffset = Random.Range(0f, 360f); // 매 서지마다 각도를 회전시켜 줌
+
+        Debug.Log($"Triggering SURGE spawn: {toSpawn} enemies from {surgeDirections} directions.");
+
+        // Fix surge radius to a single random distance within circular range for this exact surge event
+        // to ensure it perfectly aligns with the unified circular boundary.
+        float radius = Random.Range(spawnRadiusMin, spawnRadiusMax);
+
+        int spawnedThisSurge = 0;
+        for (int dir = 0; dir < surgeDirections; dir++)
+        {
+            if (spawnedThisSurge >= toSpawn) break;
+
+            float currentAngle = (dir * angleStep + randomAngleOffset) * Mathf.Deg2Rad;
+            Vector3 baseDirPos = centerPos + new Vector3(Mathf.Cos(currentAngle) * radius, Mathf.Sin(currentAngle) * radius, 0f);
+
+            for (int i = 0; i < surgeSpawnPerDirection; i++)
+            {
+                if (spawnedThisSurge >= toSpawn) break;
+
+                int randomIndex = Random.Range(0, currentWaveSpawnList.Count);
+                EnemyDataSO enemyData = currentWaveSpawnList[randomIndex];
+                if (enemyData != null)
+                {
+                    // 클러스터 오프셋
+                    Vector2 randomOffset = Random.insideUnitCircle * surgeClusterRadius;
+                    Vector3 spawnPos = baseDirPos + new Vector3(randomOffset.x, randomOffset.y, 0f);
+                    
+                    Enemy enemy = CreateEnemy(enemyData, spawnPos);
+                    if (enemy != null)
+                    {
+                        enemy.Configure(enemyData, enemyTarget, droppedBlockParent);
+                        spawnedEnemies.Add(enemy);
+                    }
+                }
+                spawnedCount++;
+                spawnedThisSurge++;
+            }
+        }
     }
 
     private void TriggerBurstSpawn()
@@ -306,41 +424,11 @@ public class WaveSpawner : MonoBehaviour
 
     private Vector3 GetNextSpawnPosition()
     {
-        if (useAreaSpawn)
-        {
-            Vector3 center = transform.position + (Vector3)spawnAreaOffset;
-            float halfX = spawnAreaSize.x * 0.5f;
-            float halfY = spawnAreaSize.y * 0.5f;
+        Vector3 centerPos = TruckBody.Instance != null ? TruckBody.Instance.transform.position : transform.position;
+        float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
+        float radius = Random.Range(spawnRadiusMin, spawnRadiusMax);
 
-            // Pick one of the 4 border lines (0: Top, 1: Bottom, 2: Left, 3: Right)
-            int edgeIndex = Random.Range(0, 4);
-            float spawnX = 0f;
-            float spawnY = 0f;
-
-            switch (edgeIndex)
-            {
-                case 0: // Top line segment
-                    spawnX = Random.Range(-halfX, halfX);
-                    spawnY = halfY;
-                    break;
-                case 1: // Bottom line segment
-                    spawnX = Random.Range(-halfX, halfX);
-                    spawnY = -halfY;
-                    break;
-                case 2: // Left line segment
-                    spawnX = -halfX;
-                    spawnY = Random.Range(-halfY, halfY);
-                    break;
-                case 3: // Right line segment
-                    spawnX = halfX;
-                    spawnY = Random.Range(-halfY, halfY);
-                    break;
-            }
-
-            return new Vector3(center.x + spawnX, center.y + spawnY, transform.position.z);
-        }
-
-        return transform.position;
+        return centerPos + new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0f);
     }
 
     private void HandlePhaseChange()
@@ -374,6 +462,12 @@ public class WaveSpawner : MonoBehaviour
 
     private bool ShouldCompleteWave()
     {
+        if (stopSpawningWhenTimerEnds)
+        {
+            // 웨이브 종료 조건: 시간이 다 끝났고, 남은 살아있는 적이 모두 죽었을 때 클리어
+            return currentRemainingTime <= 0f && CountAliveEnemies() <= 0;
+        }
+        
         return currentRemainingTime <= 0f;
     }
 
@@ -475,22 +569,45 @@ public class WaveSpawner : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (useAreaSpawn)
-        {
-            Gizmos.color = new Color(1f, 0f, 0f, 0.3f);
-            Vector3 center = transform.position + (Vector3)spawnAreaOffset;
-            Gizmos.DrawWireCube(center, new Vector3(spawnAreaSize.x, spawnAreaSize.y, 0f));
-        }
+        DrawWaveGizmos(new Color(1f, 0f, 0f, 0.3f));
     }
 
     private void OnDrawGizmosSelected()
     {
-        if (useAreaSpawn)
+        DrawWaveGizmos(Color.red);
+    }
+
+    private void DrawWaveGizmos(Color color)
+    {
+        Vector3 centerPos = transform.position;
+        if (Application.isPlaying && TruckBody.Instance != null)
         {
-            Gizmos.color = Color.red;
-            Vector3 center = transform.position + (Vector3)spawnAreaOffset;
-            Gizmos.DrawWireCube(center, new Vector3(spawnAreaSize.x, spawnAreaSize.y, 0f));
+            centerPos = TruckBody.Instance.transform.position;
         }
+        else
+        {
+            // Try to find truck in editor time if available for better visualization
+            TruckBody editorTruck = FindFirstObjectByType<TruckBody>();
+            if (editorTruck != null) centerPos = editorTruck.transform.position;
+        }
+
+        float rMin = spawnRadiusMin;
+        float rMax = spawnRadiusMax;
+
+        // 에디터 모드일 경우 WaveDataSO에서 값을 실시간으로 읽어오기 위함
+        if (!Application.isPlaying && waveScenarios != null && waveScenarios.Count > 0)
+        {
+            int index = Mathf.Clamp(currentWaveLevel - 1, 0, waveScenarios.Count - 1);
+            if (waveScenarios[index] != null)
+            {
+                rMin = waveScenarios[index].spawnRadiusMin;
+                rMax = waveScenarios[index].spawnRadiusMax;
+            }
+        }
+
+        Gizmos.color = color;
+        Gizmos.DrawWireSphere(centerPos, rMin);
+        Gizmos.DrawWireSphere(centerPos, rMax);
     }
 }
 

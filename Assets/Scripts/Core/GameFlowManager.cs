@@ -116,7 +116,10 @@ public class GameFlowManager : MonoBehaviour
             TruckMovement truck = FindFirstObjectByType<TruckMovement>();
             if (truck != null)
             {
-                truck.transform.position = new Vector3(0f, 0f, truck.transform.position.z);
+                Vector3 targetPos = truck.IsFixedPosition 
+                    ? new Vector3(truck.FixedPosition.x, truck.FixedPosition.y, truck.transform.position.z)
+                    : new Vector3(0f, 0f, truck.transform.position.z);
+                truck.transform.position = targetPos;
             }
 
             if (maintenanceBackgroundSprite != null)
@@ -287,7 +290,9 @@ public class GameFlowManager : MonoBehaviour
 
             // 3. Move all backgrounds and the truck simultaneously so they arrive at the exact center in precisely 2.0 seconds
             Vector3 startTruckPos = truck != null ? truck.transform.position : Vector3.zero;
-            Vector3 targetTruckPos = new Vector3(0f, 0f, startTruckPos.z); // Center truck
+            Vector3 targetTruckPos = truck != null && truck.IsFixedPosition
+                ? new Vector3(truck.FixedPosition.x, truck.FixedPosition.y, startTruckPos.z)
+                : new Vector3(0f, 0f, startTruckPos.z); // Center truck
 
             // Cache starting positions of active scroll backgrounds and transit background for precision Lerp
             Vector3[] startBGPositions = new Vector3[backgrounds != null ? backgrounds.Length : 0];
@@ -438,10 +443,24 @@ public class GameFlowManager : MonoBehaviour
                 phaseManager.SetPhase(GamePhase.Maintenance);
             }
 
+            // 자동 풀피 회복 (리페어 삭제 반영)
+            TruckBody truckBody = TruckBody.Instance != null ? TruckBody.Instance : FindFirstObjectByType<TruckBody>();
+            if (truckBody != null)
+            {
+                truckBody.Repair(9999f);
+            }
+            foreach (var tr in TrailerBody.ActiveTrailers)
+            {
+                if (tr != null) tr.Repair(9999f);
+            }
+
             // Explicitly force truck to absolute center (0, 0) like fresh start of the game
             if (truck != null)
             {
-                truck.transform.position = new Vector3(0f, 0f, truck.transform.position.z);
+                Vector3 targetPos = truck.IsFixedPosition
+                    ? new Vector3(truck.FixedPosition.x, truck.FixedPosition.y, truck.transform.position.z)
+                    : new Vector3(0f, 0f, truck.transform.position.z);
+                truck.transform.position = targetPos;
             }
 
             // Increment wave level internally
@@ -512,7 +531,9 @@ public class GameFlowManager : MonoBehaviour
 
             Vector3 startTruckPos = truck != null ? truck.transform.position : Vector3.zero;
             // Keep original Y position intact, only modify X position!
-            Vector3 targetTruckPos = new Vector3(6f, startTruckPos.y, startTruckPos.z);
+            Vector3 targetTruckPos = truck != null && truck.IsFixedPosition
+                ? new Vector3(truck.FixedPosition.x, truck.FixedPosition.y, startTruckPos.z)
+                : new Vector3(6f, startTruckPos.y, startTruckPos.z);
 
             // Start Fade Out
             if (ScreenFader.Instance != null)
@@ -560,7 +581,10 @@ public class GameFlowManager : MonoBehaviour
             // Reset truck to defense starting position, keeping Y coordinate fully intact!
             if (truck != null)
             {
-                truck.transform.position = new Vector3(-4f, startTruckPos.y, startTruckPos.z);
+                Vector3 defenseStartPos = truck.IsFixedPosition
+                    ? new Vector3(truck.FixedPosition.x, truck.FixedPosition.y, truck.transform.position.z)
+                    : new Vector3(-4f, startTruckPos.y, startTruckPos.z);
+                truck.transform.position = defenseStartPos;
             }
 
             // Reload wave configuration and set starting state

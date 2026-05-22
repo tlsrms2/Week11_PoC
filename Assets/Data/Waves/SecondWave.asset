@@ -14,11 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WaveDataSO
   waveName: SecondWave
   defenseDuration: 30
-  spawnInterval: 0.5
+  spawnInterval: 0.55
   maxAliveEnemies: 300
-  useBurstSpawn: 1
+  spawnRadiusMin: 18
+  spawnRadiusMax: 18
+  useSurgeSpawn: 1
+  surgeInterval: 4
+  surgeDirections: 4
+  surgeSpawnPerDirection: 5
+  surgeClusterRadius: 0.3
+  useBurstSpawn: 0
   burstInterval: 5
-  burstCount: 5
+  burstCount: 7
   enemiesToSpawn:
   - enemyData: {fileID: 11400000, guid: 7807f0874b0909b4fa01537d93027d39, type: 2}
     weight: 50

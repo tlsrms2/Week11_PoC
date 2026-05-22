@@ -21,10 +21,16 @@ public class TruckMovement : MonoBehaviour
     [Header("Steering Toggle")]
     [SerializeField] private bool useCarSteering = false;
 
+    [Header("Fixed Position")]
+    [SerializeField] private bool isFixedPosition = true;
+    [SerializeField] private Vector3 fixedPosition = Vector3.zero;
+
     private TruckBody truckBody;
 
     public bool UseCarSteering => useCarSteering;
     public Vector2 MinPosition => minPosition;
+    public bool IsFixedPosition => isFixedPosition;
+    public Vector3 FixedPosition => fixedPosition;
 
     private void Awake()
     {
@@ -54,6 +60,13 @@ public class TruckMovement : MonoBehaviour
 
     private void Update()
     {
+        if (isFixedPosition)
+        {
+            transform.position = new Vector3(fixedPosition.x, fixedPosition.y, transform.position.z);
+            transform.rotation = Quaternion.identity;
+            return;
+        }
+
         if (truckBody != null && truckBody.IsDestroyed)
         {
             return;

@@ -8,6 +8,16 @@ public class Projectile : MonoBehaviour
     private float speed = 15f;
     private bool isInitialized;
 
+    private void Awake()
+    {
+        var sr = GetComponentInChildren<SpriteRenderer>();
+        if (sr != null)
+        {
+            var outline = sr.gameObject.AddComponent<SpriteOutlineHelper>();
+            outline.outlineColor = Color.black;
+        }
+    }
+
     // AOE / Slow settings
     private bool isAOE;
     private float splashRadius;
@@ -133,7 +143,7 @@ public class Projectile : MonoBehaviour
                 {
                     if (isPiercing && hitEnemies.Contains(enemy)) continue;
 
-                    if ((enemy.transform.position - transform.position).sqrMagnitude <= hitRadiusSqr)
+                    if (((Vector2)enemy.transform.position - (Vector2)transform.position).sqrMagnitude <= hitRadiusSqr)
                     {
                         if (isPiercing)
                         {
@@ -174,7 +184,8 @@ public class Projectile : MonoBehaviour
             effectObj.transform.position = hitPos;
             
             ExplosionEffect effect = effectObj.AddComponent<ExplosionEffect>();
-            float scale = (isAOE || isAOESlow) ? splashRadius * 2f : 0.6f;
+            // 단일 타겟, 관통, 샷건 류의 피격 이펙트가 너무 작아 안 보이는 현상을 막기 위해 크기를 0.6f에서 1.5f로 확대
+            float scale = (isAOE || isAOESlow) ? splashRadius * 2f : 1.5f;
             effect.Initialize(explosionSprite, explosionColor, scale);
         }
 
@@ -189,7 +200,7 @@ public class Projectile : MonoBehaviour
                 Enemy enemy = activeEnemies[i];
                 if (enemy != null && enemy.IsAlive)
                 {
-                    if ((enemy.transform.position - hitPos).sqrMagnitude <= radiusSqr)
+                    if (((Vector2)enemy.transform.position - (Vector2)hitPos).sqrMagnitude <= radiusSqr)
                     {
                         if (isAOE)
                         {

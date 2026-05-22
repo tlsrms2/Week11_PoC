@@ -16,9 +16,9 @@ MonoBehaviour:
   baseStats:
     damage: 10
     fireRate: 3
-    range: 7
+    range: 12
   damageGrowthPerLevel: 1.25
-  fireRateGrowthPerLevel: 1.3
+  fireRateGrowthPerLevel: 1.4
   rangeGrowthPerLevel: 1
   splashRadiusGrowthPerLevel: 1
   weaponPrefab: {fileID: 3793564247735557615, guid: 8dd68ce6a6095954ca64a73f72ac5f77, type: 3}

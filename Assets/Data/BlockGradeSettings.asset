@@ -14,17 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockGradeSettingsSO
   grades:
   - gradeName: Normal
-    dropProbability: 0.7
-    minSize: 3
-    maxSize: 4
+    dropProbability: 0.5
+    minSize: 1
+    maxSize: 3
     minTurrets: 1
-    maxTurrets: 4
+    maxTurrets: 3
     minLevel: 1
     maxLevel: 1
     gradeColor: {r: 1, g: 1, b: 1, a: 0.23529412}
   - gradeName: Rare
-    dropProbability: 0.24
-    minSize: 3
+    dropProbability: 0.3
+    minSize: 2
     maxSize: 3
     minTurrets: 2
     maxTurrets: 3
@@ -32,7 +32,7 @@ MonoBehaviour:
     maxLevel: 2
     gradeColor: {r: 0, g: 0.6698113, b: 0.06291219, a: 0.23529412}
   - gradeName: Unique
-    dropProbability: 0.05
+    dropProbability: 0.15
     minSize: 2
     maxSize: 2
     minTurrets: 2
@@ -41,7 +41,7 @@ MonoBehaviour:
     maxLevel: 3
     gradeColor: {r: 0.7075472, g: 0, b: 0.60705644, a: 0.23529412}
   - gradeName: Legend
-    dropProbability: 0.01
+    dropProbability: 0.05
     minSize: 1
     maxSize: 1
     minTurrets: 1

@@ -75,6 +75,9 @@ public class GamePhaseManager : MonoBehaviour
         SetPhase(GamePhase.Victory);
     }
 
+    public static event System.Action OnGameOver;
+    public static event System.Action OnVictory;
+
     public void SetPhase(GamePhase nextPhase)
     {
         activePhase = nextPhase;
@@ -83,10 +86,12 @@ public class GamePhaseManager : MonoBehaviour
         if (activePhase == GamePhase.GameOver)
         {
             Debug.Log("GAME OVER! Press 'R' to Restart.");
+            OnGameOver?.Invoke();
         }
         else if (activePhase == GamePhase.Victory)
         {
             Debug.Log("VICTORY! ALL WAVES COMPLETED! Press 'R' to Restart.");
+            OnVictory?.Invoke();
         }
     }
 

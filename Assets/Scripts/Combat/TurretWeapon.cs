@@ -161,7 +161,7 @@ public class TurretWeapon : MonoBehaviour
                         Enemy enemy = activeEnemies[i];
                         if (enemy != null && enemy.IsAlive)
                         {
-                            if ((enemy.transform.position - transform.position).sqrMagnitude <= rangeSqr)
+                            if (((Vector2)enemy.transform.position - (Vector2)transform.position).sqrMagnitude <= rangeSqr)
                             {
                                 enemy.TakeDamage(stats.damage * 0.5f); // Half damage per tick
                                 
@@ -352,7 +352,7 @@ public class TurretWeapon : MonoBehaviour
                         Enemy enemy = activeEnemies[i];
                         if (enemy != null && enemy.IsAlive)
                         {
-                            if ((enemy.transform.position - currentTarget.transform.position).sqrMagnitude <= radiusSqr)
+                            if (((Vector2)enemy.transform.position - (Vector2)currentTarget.transform.position).sqrMagnitude <= radiusSqr)
                             {
                                 if (isAOE) enemy.TakeDamage(stats.damage);
                                 if (isAOESlow) enemy.ApplySlow(slowFact, slowDur);
@@ -424,7 +424,7 @@ public class TurretWeapon : MonoBehaviour
                 continue;
             }
 
-            float distanceSqr = (enemy.transform.position - transform.position).sqrMagnitude;
+            float distanceSqr = ((Vector2)enemy.transform.position - (Vector2)transform.position).sqrMagnitude;
             if (distanceSqr < nearestDistanceSqr && distanceSqr <= rangeSqr)
             {
                 nearestTarget = enemy;
@@ -442,7 +442,7 @@ public class TurretWeapon : MonoBehaviour
             return false;
         }
 
-        return (enemy.transform.position - transform.position).sqrMagnitude <= range * range;
+        return ((Vector2)enemy.transform.position - (Vector2)transform.position).sqrMagnitude <= range * range;
     }
 
     private void OnDrawGizmos()

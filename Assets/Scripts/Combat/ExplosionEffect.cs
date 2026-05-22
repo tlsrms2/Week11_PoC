@@ -10,7 +10,12 @@ public class ExplosionEffect : MonoBehaviour
     {
         spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
         spriteRenderer.sprite = sprite;
-        spriteRenderer.color = color;
+        
+        // 피격 이펙트가 너무 선명하여 덜 튀도록 알파 값을 10% 소폭 낮춤 (90% 투명도 유지)
+        Color softColor = color;
+        softColor.a *= 0.9f;
+        
+        spriteRenderer.color = softColor;
         spriteRenderer.sortingOrder = 10; // Ensure it renders above background/enemies
         
         // Calculate scale to ensure the sprite exactly matches the target diameter in world space
@@ -20,9 +25,9 @@ public class ExplosionEffect : MonoBehaviour
         float actualScale = targetDiameter / spriteWidth;
         transform.localScale = new Vector3(actualScale, actualScale, 1f);
         
-        currentColor = color;
+        currentColor = softColor;
         // Calculate how much alpha to subtract per second
-        fadeSpeed = color.a / duration;
+        fadeSpeed = softColor.a / duration;
 
         // Auto-destroy the effect after the duration
         Destroy(gameObject, duration);

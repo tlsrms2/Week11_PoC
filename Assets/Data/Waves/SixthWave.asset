@@ -14,9 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WaveDataSO
   waveName: SixthWave
   defenseDuration: 30
-  spawnInterval: 0.3
+  spawnInterval: 0.35
   maxAliveEnemies: 300
-  useBurstSpawn: 1
+  spawnRadiusMin: 18
+  spawnRadiusMax: 18
+  useSurgeSpawn: 1
+  surgeInterval: 5
+  surgeDirections: 5
+  surgeSpawnPerDirection: 4
+  surgeClusterRadius: 0.3
+  useBurstSpawn: 0
   burstInterval: 5
   burstCount: 10
   enemiesToSpawn:

@@ -325,12 +325,26 @@ public class TurretBlock : MonoBehaviour
 
     private void Update()
     {
-        // 1. Handle auto horizontal movement and out-of-bounds timer when dropped on the field
+        // 1. Handle magnet pull and out-of-bounds timer when dropped on the field
         if (!IsPlaced && !isInInventory && !isDragging)
         {
-            // Scroll leftwards with the map speed
-            float speed = GameFlowManager.CurrentScrollSpeed;
-            transform.position += Vector3.left * (speed * Time.deltaTime);
+            if (TruckBody.Instance != null && TruckBody.Instance.gameObject.activeInHierarchy && !TruckBody.Instance.IsDestroyed)
+            {
+                // Magnet pull towards TruckBody.Instance
+                Vector3 targetPos = TruckBody.Instance.transform.position;
+                Vector3 dir = (targetPos - transform.position).normalized;
+                float dist = Vector3.Distance(transform.position, targetPos);
+                
+                // Accelerates as it gets closer
+                float magnetSpeed = Mathf.Max(3f, 15f / (dist + 0.5f));
+                transform.position += dir * (magnetSpeed * Time.deltaTime);
+            }
+            else
+            {
+                // Fallback: Scroll leftwards with the map speed
+                float speed = GameFlowManager.CurrentScrollSpeed;
+                transform.position += Vector3.left * (speed * Time.deltaTime);
+            }
 
             // Compute left out-of-bounds limit dynamically using TruckMovement bounds
             float leftLimit = -10f;
@@ -375,14 +389,14 @@ public class TurretBlock : MonoBehaviour
             SetColor(CanPlaceAt(GetHoveredAnchorCell()) ? new Color(1f, 1f, 1f, 0.5f) : new Color(1f, 0.3f, 0.3f, 0.5f));
         }
 
-        if (GamePhaseManager.IsMaintenance && ShopManager.Instance != null)
+        if (GamePhaseManager.IsMaintenance && BlockInventory.Instance != null)
         {
             if (Keyboard.current.backspaceKey.wasPressedThisFrame || Keyboard.current.deleteKey.wasPressedThisFrame)
             {
                 isDragging = false;
                 if (DraggedBlock == this) DraggedBlock = null;
-                ShopManager.Instance.SellBlock(this);
-                if (BlockInventory.Instance != null && BlockInventory.Instance.StoredBlocks.Count == 0)
+                BlockInventory.Instance.ExchangeBlock(this);
+                if (BlockInventory.Instance.StoredBlocks.Count == 0)
                 {
                     PlacementFocusPanel.Instance?.ClosePanel();
                 }
@@ -676,17 +690,28 @@ public class TurretBlock : MonoBehaviour
             foreach (var cell in grid.Cells)
             {
                 if (cell == null || !cell.IsOccupied) continue;
-                foreach (var pt in cell.PlacedTurrets)
+                
+                int totalLevel = cell.CurrentTotalLevel;
+                for (int i = 0; i < cell.PlacedTurrets.Count; i++)
                 {
+                    var pt = cell.PlacedTurrets[i];
                     if (pt.block == null || pt.instance.data == null) continue;
                     SpriteRenderer sr = pt.block.GetSpriteRenderer(pt.instance);
                     if (sr != null)
                     {
-                        Sprite correctSprite = pt.instance.data.GetSpriteForLevel(pt.instance.level);
-                        if (sr.sprite != correctSprite)  // 실제로 변경된 경우만 복원 + 스케일 재계산
+                        if (i == cell.PlacedTurrets.Count - 1)
                         {
-                            sr.sprite = correctSprite;
-                            blocksToUpdate.Add(pt.block);
+                            sr.enabled = true;
+                            Sprite correctSprite = pt.instance.data.GetSpriteForLevel(totalLevel);
+                            if (sr.sprite != correctSprite)
+                            {
+                                sr.sprite = correctSprite;
+                                blocksToUpdate.Add(pt.block);
+                            }
+                        }
+                        else
+                        {
+                            sr.enabled = false;
                         }
                     }
                 }
@@ -707,10 +732,10 @@ public class TurretBlock : MonoBehaviour
         lastHoveredCellForPreview = null;
         ClearPreview(); // 드래그 종료 시 프리뷰 원상복구
 
-        // 인벤토리 판매 슬롯 위에 드롭한 경우 즉시 판매
-        if (BlockInventory.Instance != null && BlockInventory.Instance.IsOverSellSlot(GetMouseWorldPosition()))
+        // 인벤토리 교환 슬롯 위에 드롭한 경우 즉시 교환
+        if (BlockInventory.Instance != null && BlockInventory.Instance.IsOverExchangeSlot(GetMouseWorldPosition()))
         {
-            BlockInventory.Instance.SellBlock(this);
+            BlockInventory.Instance.ExchangeBlock(this);
             if (BlockInventory.Instance.StoredBlocks.Count == 0)
             {
                 PlacementFocusPanel.Instance?.ClosePanel();

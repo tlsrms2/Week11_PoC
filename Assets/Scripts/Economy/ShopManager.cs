@@ -13,6 +13,21 @@ public class ShopManager : MonoBehaviour
 
     public int BlockSellPrice => blockSellPrice;
 
+    // 프로퍼티를 통해 웨이브당 비용이 10씩 자동 증가하도록 처리
+    public int BlockPurchaseCost
+    {
+        get
+        {
+            int extraCost = 0;
+            WaveSpawner spawner = FindFirstObjectByType<WaveSpawner>();
+            if (spawner != null)
+            {
+                extraCost = Mathf.Max(0, spawner.CurrentWaveLevel - 1) * 10;
+            }
+            return blockPurchaseCost + extraCost;
+        }
+    }
+
     private void Awake()
     {
         Instance = this;
@@ -22,7 +37,7 @@ public class ShopManager : MonoBehaviour
     private const float purchaseCooldown = 0.05f;
 
     public bool CanPurchaseBlock => CurrencyWallet.Instance != null 
-        && CurrencyWallet.Instance.CurrentCurrency >= blockPurchaseCost 
+        && CurrencyWallet.Instance.CurrentCurrency >= BlockPurchaseCost 
         && BlockInventory.Instance != null 
         && BlockInventory.Instance.HasSpace;
 
@@ -33,7 +48,7 @@ public class ShopManager : MonoBehaviour
 
         if (!CanPurchaseBlock) return;
 
-        if (CurrencyWallet.Instance.TrySpend(blockPurchaseCost))
+        if (CurrencyWallet.Instance.TrySpend(BlockPurchaseCost))
         {
             lastPurchaseTime = Time.time;
             Vector3 pos = spawnPoint != null ? spawnPoint.position : transform.position;

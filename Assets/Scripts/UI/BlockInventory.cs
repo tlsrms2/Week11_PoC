@@ -15,7 +15,8 @@ public class BlockInventory : MonoBehaviour
     private readonly List<SpriteRenderer> instantiatedSlots = new List<SpriteRenderer>();
 
     public IReadOnlyList<TurretBlock> StoredBlocks => storedBlocks;
-    public bool HasSpace => storedBlocks.Count < (maxSlots - 1);
+    public bool HasSpace => (storedBlocks.Count + (TurretBlock.DraggedBlock != null ? 1 : 0)) < (maxSlots - 1);
+    public bool IsInventoryFull => !HasSpace;
     public int MaxSlots => maxSlots;
     public Vector3 InventoryOrigin => inventoryOrigin;
     public float SlotSpacing => slotSpacing;
@@ -61,24 +62,24 @@ public class BlockInventory : MonoBehaviour
             slotInstance.transform.localPosition = localSlotPos;
             slotInstance.sortingOrder = -5;
 
-            // 맨 오른쪽 마지막 칸은 판매(SELL) 칸으로 설정
+            // 맨 오른쪽 마지막 칸은 교환(EXCHANGE) 칸으로 설정
             if (i == maxSlots - 1)
             {
-                // 세련된 반투명 빨간색으로 변경
-                slotInstance.color = new Color(0.9f, 0.3f, 0.3f, 0.8f);
+                // 세련된 반투명 보라색(Indigo)으로 변경
+                slotInstance.color = new Color(0.6f, 0.3f, 0.9f, 0.8f);
 
-                // "SELL" 텍스트 생성
-                GameObject sellTextGo = new GameObject("SellText");
-                sellTextGo.transform.SetParent(slotInstance.transform);
-                sellTextGo.transform.localPosition = Vector3.zero;
+                // "EXCHANGE" 텍스트 생성
+                GameObject exchangeTextGo = new GameObject("ExchangeText");
+                exchangeTextGo.transform.SetParent(slotInstance.transform);
+                exchangeTextGo.transform.localPosition = Vector3.zero;
 
-                TMPro.TextMeshPro tmp = sellTextGo.AddComponent<TMPro.TextMeshPro>();
-                tmp.text = "SELL";
-                tmp.color = new Color(1f, 0.9f, 0.9f, 0.9f);
-                tmp.fontSize = 3f;
+                TMPro.TextMeshPro tmp = exchangeTextGo.AddComponent<TMPro.TextMeshPro>();
+                tmp.text = "EXCHANGE";
+                tmp.color = new Color(0.95f, 0.9f, 1f, 0.9f);
+                tmp.fontSize = 1.8f; // "EXCHANGE"가 긴 단어이므로 폰트 크기 축소
                 tmp.alignment = TMPro.TextAlignmentOptions.Center;
 
-                MeshRenderer mr = sellTextGo.GetComponent<MeshRenderer>();
+                MeshRenderer mr = exchangeTextGo.GetComponent<MeshRenderer>();
                 if (mr != null)
                 {
                     mr.sortingOrder = -4; // 슬롯보다는 위, 블록보다는 아래
@@ -150,54 +151,58 @@ public class BlockInventory : MonoBehaviour
 
     // ── Sell & Floating Text Helpers ─────────────────────────────────────────
 
-    /// <summary>마우스 월드 위치가 판매 슬롯 영역 내부(반경 1.0f)에 있는지 감지한다.</summary>
-    public bool IsOverSellSlot(Vector3 mouseWorldPos)
+    /// <summary>마우스 월드 위치가 교환 슬롯 영역 내부(반경 1.0f)에 있는지 감지한다.</summary>
+    public bool IsOverExchangeSlot(Vector3 mouseWorldPos)
     {
         if (instantiatedSlots.Count < maxSlots) return false;
 
-        SpriteRenderer sellSlot = instantiatedSlots[maxSlots - 1];
-        if (sellSlot == null) return false;
+        SpriteRenderer exchangeSlot = instantiatedSlots[maxSlots - 1];
+        if (exchangeSlot == null) return false;
 
-        Vector2 slotPos = sellSlot.transform.position;
+        Vector2 slotPos = exchangeSlot.transform.position;
         Vector2 mousePos = mouseWorldPos;
 
         float distance = Vector2.Distance(slotPos, mousePos);
         return distance <= 1.0f;
     }
 
-    /// <summary>블록을 즉시 판매하고 노란색 상승 부유 텍스트 애니메이션을 실행한다.</summary>
-    public void SellBlock(TurretBlock block)
+    /// <summary>블록을 즉시 교환하고, 1레벨짜리 1x1 포탑 블록을 무작위로 생성하여 인벤토리에 넣는다.</summary>
+    public void ExchangeBlock(TurretBlock block)
     {
         if (block == null) return;
 
-        int price = 5; // 기본값
-        if (ShopManager.Instance != null)
-        {
-            price = ShopManager.Instance.BlockSellPrice;
-        }
-
-        // Sell 슬롯의 한가운데 좌표를 spawnPos로 설정
+        // Exchange 슬롯의 한가운데 좌표를 spawnPos로 설정
         Vector3 spawnPos = block.transform.position;
         if (instantiatedSlots.Count >= maxSlots)
         {
-            SpriteRenderer sellSlot = instantiatedSlots[maxSlots - 1];
-            if (sellSlot != null)
+            SpriteRenderer exchangeSlot = instantiatedSlots[maxSlots - 1];
+            if (exchangeSlot != null)
             {
-                spawnPos = sellSlot.transform.position;
+                spawnPos = exchangeSlot.transform.position;
             }
         }
 
-        // 노란색의 +$n 텍스트 띄우기
-        CreateFloatingText($"+${price}", spawnPos, Color.yellow);
+        // "EXCHANGE" 텍스트 띄우기 (Cyan 색상)
+        CreateFloatingText("EXCHANGE", spawnPos, Color.cyan);
 
-        // 판매 및 파괴 위임
-        if (ShopManager.Instance != null)
+        // 원래 블록은 인벤토리에서 제거하고 즉시 파괴
+        RemoveBlock(block);
+        Destroy(block.gameObject);
+
+        // 새로운 1레벨짜리 1x1 랜덤 포탑 블록 생성 (위치는 교환 슬롯 좌표)
+        if (BlockGenerator.Instance != null)
         {
-            ShopManager.Instance.SellBlock(block);
-        }
-        else
-        {
-            Destroy(block.gameObject);
+            TurretBlock newBlock = BlockGenerator.Instance.GenerateLevel1SingleCellBlock(spawnPos, transform);
+            if (newBlock != null)
+            {
+                // 인벤토리에 넣기
+                bool added = TryAddBlock(newBlock);
+                if (!added)
+                {
+                    // 예외 처리: 만약 실패했다면 파괴되지 않게 예방하거나 드롭 상태로 만듦
+                    Debug.LogWarning("ExchangeBlock: Failed to add generated block to inventory.");
+                }
+            }
         }
     }
 
