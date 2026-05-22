@@ -4200,6 +4200,22 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 0.083
       objectReference: {fileID: 0}
+    - target: {fileID: 5399887392948485595, guid: ae57bc32a03745743a3a99bcfc426841, type: 3}
+      propertyPath: cellSize.x
+      value: 0.206
+      objectReference: {fileID: 0}
+    - target: {fileID: 5399887392948485595, guid: ae57bc32a03745743a3a99bcfc426841, type: 3}
+      propertyPath: cellSize.y
+      value: 0.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 5399887392948485595, guid: ae57bc32a03745743a3a99bcfc426841, type: 3}
+      propertyPath: gridAreaSize.x
+      value: 1.11
+      objectReference: {fileID: 0}
+    - target: {fileID: 5399887392948485595, guid: ae57bc32a03745743a3a99bcfc426841, type: 3}
+      propertyPath: gridAreaSize.y
+      value: 0.7
+      objectReference: {fileID: 0}
     - target: {fileID: 7348896509185490963, guid: ae57bc32a03745743a3a99bcfc426841, type: 3}
       propertyPath: m_Name
       value: PlayerTruck
@@ -4218,7 +4234,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9128778421745994895, guid: ae57bc32a03745743a3a99bcfc426841, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.326
+      value: -0.324
+      objectReference: {fileID: 0}
+    - target: {fileID: 9128778421745994895, guid: ae57bc32a03745743a3a99bcfc426841, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.017
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:

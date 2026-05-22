@@ -48,6 +48,7 @@ public class TurretBlock : MonoBehaviour
     private bool     isDragging;
     private GridCell lastHoveredCellForPreview;
 
+    private Vector3 dragOffsetWorld;
     // Cache the original instances to handle invalid rotation fallback
     private List<Vector2Int> dragStartLocalPositions;
 
@@ -61,6 +62,7 @@ public class TurretBlock : MonoBehaviour
     public bool IsInInventory => isInInventory;
     // Tracks whether the drag started from inside the inventory (set in OnMouseDown, cleared in OnMouseUp)
     private bool dragStartedFromInventory;
+    public bool DragStartedFromInventory => dragStartedFromInventory;
 
     public static TurretBlock DraggedBlock { get; private set; }
 
@@ -999,6 +1001,9 @@ public class TurretBlock : MonoBehaviour
             SpriteRenderer sr = inst.backgroundCellRenderer;
             if (sr == null) continue;
 
+            // Ensure dragged background renders on top of the grid
+            sr.sortingOrder = isDragging ? 5 : -1;
+
             if (IsPlaced && !isDragging)
             {
                 // 그리드에 배치된 상태: 셀 배경 숨김
@@ -1006,8 +1011,17 @@ public class TurretBlock : MonoBehaviour
             }
             else if (isDragging)
             {
-                // 드래그 중: 등급 색 숨김, 트인트만 반영 (배경 셀은 투명하게)
-                sr.color = new Color(1f * tint.r, 1f * tint.g, 1f * tint.b, 0f);
+                if (dragStartedFromInventory && inst.data != null)
+                {
+                    // 인벤토리에서 드래그 중일 경우 각 셀의 고유 폭발 색상 적용 (배치 유효성에 따른 tint도 함께 반영)
+                    Color exColor = inst.data.explosionColor;
+                    sr.color = new Color(exColor.r * tint.r, exColor.g * tint.g, exColor.b * tint.b, 0.5f);
+                }
+                else
+                {
+                    // 드래그 중: 등급 색 숨김, 트인트만 반영 (배경 셀은 투명하게)
+                    sr.color = new Color(1f * tint.r, 1f * tint.g, 1f * tint.b, 0f);
+                }
             }
             else
             {

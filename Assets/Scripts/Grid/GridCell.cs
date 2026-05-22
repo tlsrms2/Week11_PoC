@@ -33,6 +33,7 @@ public class GridCell : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private BoxCollider2D boxCollider;
     private bool isHovered;
+    private bool wasDraggingFromInv;
     private Color originalLayerTextColor = Color.white;
 
     public int GridX => gridX;
@@ -71,6 +72,7 @@ public class GridCell : MonoBehaviour
     private void Update()
     {
         bool pointerOverCell = false;
+        bool isDraggingFromInv = TurretBlock.DraggedBlock != null && TurretBlock.DraggedBlock.DragStartedFromInventory;
 
         if (TurretBlock.DraggedBlock != null)
         {
@@ -81,10 +83,23 @@ public class GridCell : MonoBehaviour
             pointerOverCell = IsPointerOverCell();
         }
 
-        if (isHovered == pointerOverCell) return;
+        bool stateChanged = false;
+        if (isHovered != pointerOverCell)
+        {
+            isHovered = pointerOverCell;
+            stateChanged = true;
+        }
 
-        isHovered = pointerOverCell;
-        RefreshVisual();
+        if (wasDraggingFromInv != isDraggingFromInv)
+        {
+            wasDraggingFromInv = isDraggingFromInv;
+            stateChanged = true;
+        }
+
+        if (stateChanged)
+        {
+            RefreshVisual();
+        }
     }
 
     public void Initialize(TruckGrid grid, int x, int y, Vector2 size)
@@ -240,13 +255,30 @@ public class GridCell : MonoBehaviour
     {
         if (spriteRenderer == null) return;
 
+        bool draggingFromInv = TurretBlock.DraggedBlock != null && TurretBlock.DraggedBlock.DragStartedFromInventory;
+
         if (IsOccupied)
         {
-            spriteRenderer.color = placedTurrets.Count > 1 ? stackedColor : occupiedColor;
+            if (draggingFromInv && OccupiedTurretData != null)
+            {
+                Color exColor = OccupiedTurretData.explosionColor;
+                spriteRenderer.color = new Color(exColor.r, exColor.g, exColor.b, 0.5f);
+            }
+            else
+            {
+                spriteRenderer.color = placedTurrets.Count > 1 ? stackedColor : occupiedColor;
+            }
         }
         else
         {
-            spriteRenderer.color = isHovered ? hoverColor : normalColor;
+            if (isHovered && draggingFromInv)
+            {
+                spriteRenderer.color = new Color(0f, 0f, 0f, 0f);
+            }
+            else
+            {
+                spriteRenderer.color = isHovered ? hoverColor : normalColor;
+            }
         }
 
         RefreshLayerText();
