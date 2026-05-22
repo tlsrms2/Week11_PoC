@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 958a4ac2115450f45a633e7dd818fa18, type: 3}
+  m_Name: "\uBBF8\uC0AC\uC77C"
+  m_EditorClassIdentifier: Assembly-CSharp::TurretDataSO
+  turretName: "\uBBF8\uC0AC\uC77C"
+  baseStats:
+    damage: 10
+    fireRate: 1
+    range: 9
+  damageGrowthPerLevel: 1.5
+  fireRateGrowthPerLevel: 1.15
+  rangeGrowthPerLevel: 1
+  splashRadiusGrowthPerLevel: 1.05
+  weaponPrefab: {fileID: 3793564247735557615, guid: 4f91e6ccf61f18c44833cd9c0bfb5ba4, type: 3}
+  icon: {fileID: 21300000, guid: 7aba2f8851b3dd044a43e4de71a5353e, type: 3}
+  attackOnlyDuringDefense: 1
+  targetRefreshInterval: 0.1
+  projectilePrefab: {fileID: 9141280428756515247, guid: 7f9e06da31a252445aa10b94666d2cbd, type: 3}
+  projectileSpeed: 15
+  explosionSprite: {fileID: 21300000, guid: 7c83a85da90d03f4cac1ef9f483b623f, type: 3}
+  explosionColor: {r: 1, g: 0.4901961, b: 0.5019608, a: 1}
+  attackType: 1
+  splashRadius: 3
+  slowFactor: 0.5
+  slowDuration: 2
+  auraActiveDuration: 3
+  auraRestDuration: 2
+  shotgunPelletCount: 5
+  shotgunSpreadAngle: 30
+  shotgunPelletUpgrades: []
+  basePierceCount: 3
+  pierceUpgrades: []
+  visualUpgrades:
+  - minLevel: 5
+    sprite: {fileID: 21300000, guid: 749443fd5fc310d468a313979ff9f006, type: 3}
+  - minLevel: 10
+    sprite: {fileID: 21300000, guid: 216cb41b81e28bc4caef22f41cd4dfda, type: 3}

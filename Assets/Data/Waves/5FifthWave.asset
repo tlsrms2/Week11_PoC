@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70b7031a5695f6a4db27f952ac3a8247, type: 3}
+  m_Name: 5FifthWave
+  m_EditorClassIdentifier: Assembly-CSharp::WaveDataSO
+  waveName: ForthWave
+  defenseDuration: 30
+  spawnInterval: 0.4
+  maxAliveEnemies: 300
+  useBurstSpawn: 1
+  burstInterval: 5
+  burstCount: 10
+  enemiesToSpawn:
+  - enemyData: {fileID: 11400000, guid: 21ea3413f245c2b44a6e558009de5314, type: 2}
+    weight: 40
+  - enemyData: {fileID: 11400000, guid: c7e3ee28b35af05488d13d55cfa4e24f, type: 2}
+    weight: 20
+  - enemyData: {fileID: 11400000, guid: 2acad3b6b29b98b42978bc12289854ee, type: 2}
+    weight: 15
+  - enemyData: {fileID: 11400000, guid: de1119b7865196c44a0e0b714a8c0ece, type: 2}
+    weight: 10
+  - enemyData: {fileID: 11400000, guid: d43170f4ce6c94148b9093211414989b, type: 2}
+    weight: 5
+  - enemyData: {fileID: 11400000, guid: 2de2c29065c80714c95c0131a147bbf1, type: 2}
+    weight: 5
+  - enemyData: {fileID: 11400000, guid: 9735a179e54b8f84f8b589fd0c05f9dc, type: 2}
+    weight: 5
