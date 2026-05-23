@@ -295,12 +295,15 @@ public class Enemy : MonoBehaviour
         targetCollider = closestCollider;
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, Color popupColor = default)
     {
         if (!IsAlive || damage <= 0f) return;
 
         currentHealth = Mathf.Max(0f, currentHealth - damage);
         
+        // 동적 데미지 텍스트 팝업 띄우기 (투사체/타워 폭발 색상 반영)
+        DamageTextPopup.Create(transform.position, damage, popupColor);
+
         if (healthBarFill != null)
         {
             float max = enemyData != null ? enemyData.maxHealth : 30f;

@@ -24,7 +24,7 @@ MonoBehaviour:
   weaponPrefab: {fileID: 3793564247735557615, guid: 87cc86a0907f72e4089c6775ee1a2712, type: 3}
   icon: {fileID: 21300000, guid: 9d8dfc4d8b16cb64781dd16bebc3c137, type: 3}
   attackOnlyDuringDefense: 1
-  targetRefreshInterval: 0.1
+  targetRefreshInterval: 0.05
   projectilePrefab: {fileID: 9141280428756515247, guid: 5f9c1e1d2a9d15f489bd1305ee942c26, type: 3}
   projectileSpeed: 40
   explosionSprite: {fileID: 21300000, guid: 7c83a85da90d03f4cac1ef9f483b623f, type: 3}
@@ -41,9 +41,9 @@ MonoBehaviour:
   basePierceCount: 3
   pierceUpgrades:
   - minLevel: 5
-    bonusPierce: 2
+    bonusPierce: 1
   - minLevel: 10
-    bonusPierce: 2
+    bonusPierce: 1
   visualUpgrades:
   - minLevel: 5
     sprite: {fileID: 21300000, guid: 95f662868c017f74e952b1614206086e, type: 3}

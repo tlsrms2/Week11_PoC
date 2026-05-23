@@ -21,7 +21,7 @@ MonoBehaviour:
   useSurgeSpawn: 1
   surgeInterval: 5
   surgeDirections: 5
-  surgeSpawnPerDirection: 11
+  surgeSpawnPerDirection: 5
   surgeClusterRadius: 0.5
   useBurstSpawn: 0
   burstInterval: 5
@@ -30,14 +30,14 @@ MonoBehaviour:
   - enemyData: {fileID: 11400000, guid: 21ea3413f245c2b44a6e558009de5314, type: 2}
     weight: 25
   - enemyData: {fileID: 11400000, guid: c7e3ee28b35af05488d13d55cfa4e24f, type: 2}
-    weight: 20
+    weight: 25
   - enemyData: {fileID: 11400000, guid: 2acad3b6b29b98b42978bc12289854ee, type: 2}
-    weight: 15
+    weight: 20
   - enemyData: {fileID: 11400000, guid: de1119b7865196c44a0e0b714a8c0ece, type: 2}
     weight: 10
   - enemyData: {fileID: 11400000, guid: d43170f4ce6c94148b9093211414989b, type: 2}
     weight: 10
   - enemyData: {fileID: 11400000, guid: 2de2c29065c80714c95c0131a147bbf1, type: 2}
-    weight: 10
+    weight: 5
   - enemyData: {fileID: 11400000, guid: 9735a179e54b8f84f8b589fd0c05f9dc, type: 2}
-    weight: 10
+    weight: 5

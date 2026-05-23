@@ -204,7 +204,7 @@ public class Projectile : MonoBehaviour
                     {
                         if (isAOE)
                         {
-                            enemy.TakeDamage(damage);
+                            enemy.TakeDamage(damage, explosionColor);
                         }
                         if (isAOESlow)
                         {
@@ -217,14 +217,14 @@ public class Projectile : MonoBehaviour
             // Ensure the main target takes base damage if AOE damage wasn't active
             if (!isAOE && target != null)
             {
-                target.TakeDamage(damage);
+                target.TakeDamage(damage, explosionColor);
             }
         }
         else
         {
             if (target != null)
             {
-                target.TakeDamage(damage);
+                target.TakeDamage(damage, explosionColor);
             }
         }
         

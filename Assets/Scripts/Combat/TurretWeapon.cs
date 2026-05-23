@@ -163,7 +163,7 @@ public class TurretWeapon : MonoBehaviour
                         {
                             if (((Vector2)enemy.transform.position - (Vector2)transform.position).sqrMagnitude <= rangeSqr)
                             {
-                                enemy.TakeDamage(stats.damage * 0.5f); // Half damage per tick
+                                enemy.TakeDamage(stats.damage * 0.5f, turretInstance.data.explosionColor); // Half damage per tick
                                 
                                 // Spawn explosion effect for visual feedback
                                 if (turretInstance.data.explosionSprite != null)
@@ -276,7 +276,7 @@ public class TurretWeapon : MonoBehaviour
                     }
                     else
                     {
-                        currentTarget.TakeDamage(stats.damage);
+                        currentTarget.TakeDamage(stats.damage, turretInstance.data.explosionColor);
                     }
                 }
             }
@@ -310,7 +310,7 @@ public class TurretWeapon : MonoBehaviour
                 }
                 else
                 {
-                    currentTarget.TakeDamage(stats.damage);
+                    currentTarget.TakeDamage(stats.damage, turretInstance.data.explosionColor);
                 }
             }
         }
@@ -355,7 +355,7 @@ public class TurretWeapon : MonoBehaviour
                         {
                             if (((Vector2)enemy.transform.position - (Vector2)currentTarget.transform.position).sqrMagnitude <= radiusSqr)
                             {
-                                if (isAOE) enemy.TakeDamage(stats.damage);
+                                if (isAOE) enemy.TakeDamage(stats.damage, turretInstance.data.explosionColor);
                                 if (isAOESlow) enemy.ApplySlow(slowFact, slowDur);
                             }
                         }
@@ -363,14 +363,14 @@ public class TurretWeapon : MonoBehaviour
 
                     if (!isAOE && currentTarget != null)
                     {
-                        currentTarget.TakeDamage(stats.damage);
+                        currentTarget.TakeDamage(stats.damage, turretInstance.data.explosionColor);
                     }
                 }
                 else
                 {
                     if (currentTarget != null)
                     {
-                        currentTarget.TakeDamage(stats.damage);
+                        currentTarget.TakeDamage(stats.damage, turretInstance.data.explosionColor);
                     }
                 }
             }

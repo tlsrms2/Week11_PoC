@@ -24,7 +24,7 @@ MonoBehaviour:
   weaponPrefab: {fileID: 3793564247735557615, guid: 08b95854fd2d88d47a261725fd7fcee5, type: 3}
   icon: {fileID: 21300000, guid: 02199de0befb0944dbb20d1b8154cb43, type: 3}
   attackOnlyDuringDefense: 1
-  targetRefreshInterval: 0.1
+  targetRefreshInterval: 0.05
   projectilePrefab: {fileID: 9141280428756515247, guid: 8a39b85c7fd16154b9980fde10edf620, type: 3}
   projectileSpeed: 15
   explosionSprite: {fileID: 21300000, guid: 7c83a85da90d03f4cac1ef9f483b623f, type: 3}
